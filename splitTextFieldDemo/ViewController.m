@@ -11,6 +11,7 @@
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet DXMSeparateTextField *separateTextField;
+@property (weak, nonatomic) IBOutlet UITextField *testTextField;
 
 @end
 
@@ -23,8 +24,8 @@
     self.separateTextField.separatePlaceholder = @" ";
     self.separateTextField.separateLenArray = @[@(3),@(4),@(4)];
     
-    self.separateTextField.text = @"13816254394";
-    NSLog(@"%@",self.separateTextField.text);
+//    self.separateTextField.text = @"13816254394";
+    self.testTextField.text = @"13816254394";
 }
 
 

@@ -28,17 +28,27 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
                             </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ipC-V5-uLL">
+                                <rect key="frame" x="36" y="273" width="303" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailingMargin" secondItem="LZN-XJ-63A" secondAttribute="trailing" constant="20" id="8gk-5p-Epj"/>
+                            <constraint firstItem="ipC-V5-uLL" firstAttribute="trailing" secondItem="LZN-XJ-63A" secondAttribute="trailing" id="8i4-ZI-Rye"/>
                             <constraint firstItem="LZN-XJ-63A" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="20" id="cVR-yM-FO7"/>
+                            <constraint firstItem="LZN-XJ-63A" firstAttribute="top" secondItem="ipC-V5-uLL" secondAttribute="bottom" constant="15" id="fH4-jo-FGF"/>
                             <constraint firstItem="LZN-XJ-63A" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="rJF-Kh-Ah8"/>
                             <constraint firstItem="LZN-XJ-63A" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="uAt-Cv-KtI"/>
+                            <constraint firstItem="ipC-V5-uLL" firstAttribute="leading" secondItem="LZN-XJ-63A" secondAttribute="leading" id="wgC-G1-kFe"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="separateTextField" destination="LZN-XJ-63A" id="6qg-0e-Wq2"/>
+                        <outlet property="testTextField" destination="ipC-V5-uLL" id="pEq-9k-I2I"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
