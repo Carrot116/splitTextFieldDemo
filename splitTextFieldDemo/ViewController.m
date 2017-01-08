@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "DXMSeparateTextField.h"
 
-@interface ViewController ()
+@interface ViewController () <UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet DXMSeparateTextField *separateTextField;
 @property (weak, nonatomic) IBOutlet UITextField *testTextField;
 
@@ -21,10 +21,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
-    self.separateTextField.separatePlaceholder = @" ";
-    self.separateTextField.separateLenArray = @[@(3),@(4),@(4)];
+    self.separateTextField.separator = ' ';
+    self.separateTextField.formatTemplate = @[@(3),@(4),@(4)];
+    self.separateTextField.delegate = self;
     
-//    self.separateTextField.text = @"13816254394";
+    self.separateTextField.text = @"13816254394";
     self.testTextField.text = @"13816254394";
 }
 
@@ -34,5 +35,10 @@
     // Dispose of any resources that can be recreated.
 }
 
-
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+//    if (textField == self.separateTextField){
+//        return (self.separateTextField.textWithSeparator.length < 12);
+//    }
+    return YES;
+}
 @end

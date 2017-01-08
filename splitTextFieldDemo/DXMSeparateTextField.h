@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface DXMSeparateTextField : UITextField
-@property (nonatomic, strong) NSArray<NSNumber*>* separateLenArray;     // 分隔数组
-@property (nonatomic, copy) NSString* separatePlaceholder;              // 分隔符
+@property (nonatomic, strong) NSArray<NSNumber*>* formatTemplate;       // 分隔数组
+@property (nonatomic, assign) unichar separator;                        // 分隔符
+@property (nonatomic, copy, readonly) NSString* textWithSeparator;      // 去掉分隔符的字符串
 @end

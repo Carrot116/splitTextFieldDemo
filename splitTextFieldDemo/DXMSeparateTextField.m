@@ -8,10 +8,11 @@
 
 #import "DXMSeparateTextField.h"
 
-@implementation DXMSeparateTextField{
-    NSString* _mInnerText;
-}
-@synthesize text = _mInnerText;
+@interface DXMSeparateTextField ()
+@property (nonatomic, copy) NSString* textWithSeparator;      // 去掉分隔符的字符串
+@end
+
+@implementation DXMSeparateTextField
 - (instancetype)initWithCoder:(NSCoder *)aDecoder{
     if (self = [super initWithCoder:aDecoder]) {
         [self setupSeparateAttributes];
@@ -35,8 +36,8 @@
 
 - (void)setupSeparateAttributes{
     [self addTarget:self action:@selector(formatDisplayText:) forControlEvents:UIControlEventEditingChanged];
-    _separateLenArray = nil;
-    _separatePlaceholder = @"";
+    _formatTemplate = nil;
+    _separator = '-';
 }
 
 - (void)dealloc{
@@ -47,99 +48,51 @@
     if (textField != self) {
         return;
     }
-    super.text = [self formatText:super.text isInput:YES];
+    [self formatText:super.text isInput:YES];
 }
 
-
-/**
- *  除去非数字字符，确定光标正确位置
- *
- *  @param string         当前的string
- *  @param cursorPosition 光标位置
- *
- *  @return 处理过后的string
- */
-- (NSString *)removeNonDigits:(NSString *)string andPreserveCursorPosition:(NSUInteger *)cursorPosition {
-    NSUInteger originalCursorPosition =*cursorPosition;
-    NSMutableString *digitsOnlyString = [NSMutableString new];
-    
-    for (NSUInteger i=0; i<string.length; i++) {
-        unichar characterToAdd = [string characterAtIndex:i];
-        
-        if(isdigit(characterToAdd)) {
-            NSString *stringToAdd = [NSString stringWithCharacters:&characterToAdd length:1];
-            [digitsOnlyString appendString:stringToAdd];
-        }
-        else {
-            if(i<originalCursorPosition) {
-                (*cursorPosition)--;
-            }
+- (BOOL)isEnableFormat{
+    BOOL bEnable = NO;
+    for (NSNumber* obj in _formatTemplate) {
+        NSInteger len = [obj integerValue];
+        if (len > 0 ) {
+            bEnable = YES;
+            break;
         }
     }
-    return digitsOnlyString;
+    return bEnable;
 }
 
-/**
- *  将空格插入我们现在的string 中，并确定我们光标的正确位置，防止在空格中
- *
- *  @param string         当前的string
- *  @param cursorPosition 光标位置
- *
- *  @return 处理后有空格的string
- */
-- (NSString *)insertSpacesEveryFourDigitsIntoString:(NSString *)string andPreserveCursorPosition:(NSUInteger *)cursorPosition{
-    NSMutableString *stringWithAddedSpaces = [NSMutableString new];
-    NSUInteger cursorPositionInSpacelessString = *cursorPosition;
-    
-    for (NSUInteger i=0; i<string.length; i++) {
-        if(i>0)
-        {
-            if(i==3 || i==7) {
-                [stringWithAddedSpaces appendString:@"-"];
-                
-                if(i<cursorPositionInSpacelessString) {
-                    (*cursorPosition)++;
-                }
-            }
-        }
-        
-        unichar characterToAdd = [string characterAtIndex:i];
-        NSString *stringToAdd = [NSString stringWithCharacters:&characterToAdd length:1];
-        [stringWithAddedSpaces appendString:stringToAdd];
+- (void)formatText:(NSString*)text isInput:(BOOL)isInput{
+    if (![self isEnableFormat]) {
+        super.text = text;
+        self.textWithSeparator = text;
+        return ;
     }
-    return stringWithAddedSpaces;
-}
-
-
-- (NSString*)formatText:(NSString*)text isInput:(BOOL)isInput{
-    /**
-     *  判断正确的光标位置
-     */
+    // 当前光标位置
     NSUInteger targetCursorPostion = [self offsetFromPosition:self.beginningOfDocument toPosition:self.selectedTextRange.start];
-    NSString *textWithoutFormat = [self removeNonDigits: isInput ? super.text : text andPreserveCursorPosition:&targetCursorPostion];
     
+    NSUInteger newCursorPostion = targetCursorPostion;
+    NSMutableString *textWithoutFormat = [NSMutableString new];
+    for (NSUInteger i=0; i<text.length; i++) {
+        unichar characterToAdd = [text characterAtIndex:i];
+        if(isdigit(characterToAdd)) {
+            [textWithoutFormat appendString:[NSString stringWithCharacters:&characterToAdd length:1]];
+        } else {
+            if(i<targetCursorPostion) {
+                newCursorPostion--;
+            }
+        }
+    }
     
-//    if([textWithoutFormat length]>11) {
-//        /**
-//         *  避免超过11位的输入
-//         */
-//        
-//        //        [self setText:_previousTextFieldContent];
-//        //        textField.selectedTextRange = _previousSelection;
-//        
-//        return;
-//    }
-  
-    NSString* newText = textWithoutFormat;
-    if (newText && self.separateLenArray
-        && self.separatePlaceholder
-        && ![self.separatePlaceholder isEqualToString:@""]) {
-        NSMutableString* disPlayText = [NSMutableString string];
-        NSString* srcText = newText;
+    self.textWithSeparator = textWithoutFormat;
+    NSMutableString* disPlayText = [NSMutableString string];
+    if (textWithoutFormat && self.formatTemplate) {
+        NSString* srcText = textWithoutFormat;
         NSInteger sectionLen = 0;
-        for (NSNumber* numObj in self.separateLenArray ) {
+        for (NSNumber* numObj in self.formatTemplate ) {
+            if ([numObj integerValue] <= 0) continue;
             sectionLen = [numObj integerValue];
-            if (sectionLen <= 0) continue;
             if (!srcText || [srcText isEqualToString:@""]) {
                 break;
             }
@@ -148,9 +101,9 @@
             srcText = [srcText substringFromIndex:sectionText.length];
             [disPlayText appendString:sectionText];
             if (srcText && ![srcText isEqualToString:@""]) {
-                [disPlayText appendString:self.separatePlaceholder];
-                if (disPlayText.length < targetCursorPostion) {
-                    targetCursorPostion += 1;
+                [disPlayText appendString:[NSString stringWithCharacters:&_separator length:1]];
+                if (disPlayText.length <= targetCursorPostion) {
+                    newCursorPostion ++;
                 }
             }
         }
@@ -158,32 +111,18 @@
         if (srcText && ![srcText isEqualToString:@""] && sectionLen > 0) {
             [disPlayText appendString:srcText];
         }
-        
-        
-        newText = disPlayText;
+    } else {
+        disPlayText = textWithoutFormat;
     }
-    UITextPosition *targetPostion = [self positionFromPosition:self.beginningOfDocument offset:targetCursorPostion];
-    [self setSelectedTextRange:[self textRangeFromPosition:targetPostion toPosition:targetPostion]];
+    super.text = disPlayText;
     
-    return newText;
-}
-
-- (NSString*)unFormatText:(NSString*)formatText{
-    if (formatText && self.separateLenArray && self.separatePlaceholder && ![self.separatePlaceholder isEqualToString:@""]) {
-        return [formatText stringByReplacingOccurrencesOfString:self.separatePlaceholder withString:@""];
-    }
-    return formatText;
+    // 计算新光标的位置
+    UITextPosition *targetPostion = [self positionFromPosition:self.beginningOfDocument offset:newCursorPostion];
+    [self setSelectedTextRange:[self textRangeFromPosition:targetPostion toPosition:targetPostion]];
 }
 
 - (void)setText:(NSString *)text{
-    _mInnerText = text;
-    NSString* newText = [self formatText:text isInput:NO];
-    [super setText:newText];
-}
-
-- (NSString*)text{
-    _mInnerText = [self unFormatText:[super text]];
-    return _mInnerText;
+    [self formatText:text isInput:NO];
 }
 
 @end
